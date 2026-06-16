@@ -194,7 +194,7 @@ function renderStep(){
 }
 function answer(idx){
   const item=Q[state.step], o=item.o[idx];
-  state.scores[item.d]+=o.v; state.answers[state.step]={t:item.d,v:o.v};
+  state.scores[item.d]+=o.v; state.answers[state.step]={t:item.d,v:o.v,o:idx};
   state.step++; renderStep();
 }
 function answerMode(idx){ state.mode=MODEQ.o[idx].mode; state.answers[state.step]={mode:state.mode}; renderResult(); }
@@ -227,6 +227,10 @@ function renderResult(){
   const topD=order.reduce((a,b)=>sc[a]>=sc[b]?a:b);
   const lowD=order.reduce((a,b)=>sc[a]<=sc[b]?a:b);
   LAST={overall,tier,topD,sc};
+  try{ fetch('/api/log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    version:'serious', sector:state.sector, level:tier.n, mode:state.mode, overall,
+    picks: state.answers.slice(0,Q.length).map(a=>(a&&typeof a.o==='number')?a.o:-1)
+  })}).catch(()=>{}); }catch(e){}
   const C=2*Math.PI*64, off=C*(1-overall/100);
   // 4D 레이더
   const cx=130,cy=120,R=86;
