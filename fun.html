@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나는 AI 몇 단계? · AI 레벨 테스트</title>
+<style>
+  :root{
+    --page:#f2f4f6; --card:#ffffff; --ink:#191f28; --sub:#8b95a1; --sub2:#4e5968;
+    --blue:#3182f6; --blue-bg:#e8f3ff; --line:#e5e8eb; --line2:#f2f4f6;
+    --radius:20px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; background:var(--page); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Malgun Gothic",sans-serif;
+    -webkit-font-smoothing:antialiased; display:flex; justify-content:center; min-height:100vh; padding:20px 14px;}
+  .app{width:100%; max-width:420px;}
+  .card{background:var(--card); border-radius:24px; padding:28px 22px; box-shadow:0 4px 16px rgba(0,0,0,.05);}
+  h1{font-size:24px; font-weight:800; letter-spacing:-.03em; margin:0 0 8px; line-height:1.35;}
+  .sub{color:var(--sub); font-size:15px; line-height:1.6; letter-spacing:-.01em;}
+  .center{text-align:center;}
+  /* buttons */
+  .btn{display:block; width:100%; border:0; cursor:pointer; font-size:17px; font-weight:700;
+    color:#fff; background:var(--blue); padding:16px; border-radius:14px; letter-spacing:-.01em;
+    transition:transform .1s, background .15s;}
+  .btn:active{transform:scale(.98); background:#1b64da;}
+  .btn.sec{background:var(--line2); color:var(--sub2); margin-top:8px;}
+  .btn.sec:active{background:var(--line);}
+  .btnrow{display:flex; gap:8px;} .btnrow .btn{margin-top:0;}
+  /* progress */
+  .topbar{display:flex; align-items:center; gap:12px; margin-bottom:24px;}
+  .progress{flex:1; height:6px; background:var(--line2); border-radius:99px; overflow:hidden;}
+  .progress>span{display:block; height:100%; width:0; background:var(--blue); border-radius:99px; transition:width .35s cubic-bezier(.2,.8,.2,1);}
+  .pcount{font-size:13px; font-weight:700; color:var(--sub); font-variant-numeric:tabular-nums;}
+  /* question */
+  .q{font-size:21px; font-weight:800; letter-spacing:-.03em; line-height:1.4; margin:4px 0 22px;}
+  .opt{display:flex; align-items:center; gap:13px; background:#fff; border:1.5px solid var(--line);
+    border-radius:14px; padding:16px 16px; margin-bottom:10px; cursor:pointer; font-size:15.5px;
+    font-weight:600; letter-spacing:-.01em; color:var(--ink); transition:border-color .12s, background .12s, transform .08s;}
+  .opt:hover{border-color:#c5d8f7;} .opt:active{transform:scale(.985); background:var(--blue-bg); border-color:var(--blue);}
+  .opt .emo{font-size:22px; flex-shrink:0;}
+  /* sector */
+  .sgrid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .sector{background:#fff; border:1.5px solid var(--line); border-radius:16px; padding:18px 8px;
+    text-align:center; cursor:pointer; transition:border-color .12s, transform .08s, background .12s;}
+  .sector:active{transform:scale(.96); border-color:var(--blue); background:var(--blue-bg);}
+  .sector .se{font-size:28px;} .sector .sn{font-size:13.5px; font-weight:700; margin-top:7px; letter-spacing:-.02em;}
+  /* result */
+  .reveal{animation:rise .45s cubic-bezier(.2,.8,.2,1);}
+  @keyframes rise{from{opacity:0; transform:translateY(14px)}to{opacity:1; transform:none}}
+  .secTag{font-size:13px; font-weight:700; color:var(--sub); text-align:center; margin-bottom:18px;}
+  .ring{position:relative; width:140px; height:140px; margin:0 auto 8px;}
+  .ring svg{transform:rotate(-90deg);}
+  .ring .ctr{position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+  .ring .num{font-size:38px; font-weight:800; letter-spacing:-.04em; line-height:1; font-variant-numeric:tabular-nums;}
+  .ring .of{font-size:12px; color:var(--sub); margin-top:2px;}
+  .tier{text-align:center; font-size:30px; font-weight:800; letter-spacing:-.03em; margin:6px 0 4px;}
+  .tierd{text-align:center; color:var(--sub2); font-size:15px; line-height:1.55; letter-spacing:-.01em; margin:0 12px 18px;}
+  .ladder{display:flex; gap:4px; margin:0 0 20px;}
+  .rung{flex:1; height:5px; border-radius:99px; background:var(--line);}
+  .rung.on{background:var(--blue);}
+  .flexline{text-align:center; background:#fff4e0; color:#b26a00; font-weight:800; border:1.5px solid #ffe2b0;
+    border-radius:14px; padding:13px 15px; margin:0 0 16px; font-size:15px; letter-spacing:-.02em; line-height:1.45;}
+  .chips{text-align:center; margin-bottom:6px;}
+  .chip{display:inline-block; background:var(--blue-bg); color:var(--blue); border-radius:99px;
+    padding:6px 13px; font-size:13px; font-weight:700; margin:3px; letter-spacing:-.01em;}
+  .sec-box{background:var(--line2); border-radius:14px; padding:16px 17px; margin:14px 0; }
+  .sec-box h3{margin:0 0 7px; font-size:14px; font-weight:800; color:var(--ink); letter-spacing:-.02em;}
+  .sec-box p{margin:0; font-size:14px; line-height:1.6; color:var(--sub2); letter-spacing:-.01em;}
+  .tip{display:flex; gap:11px; align-items:flex-start; margin:11px 0; font-size:14px; line-height:1.55; color:var(--sub2); letter-spacing:-.01em;}
+  .tip .ti{font-size:17px; flex-shrink:0;} .tip b{color:var(--ink); font-weight:700;}
+  .toast{position:fixed; left:50%; bottom:28px; transform:translateX(-50%) translateY(20px);
+    background:#191f28; color:#fff; padding:13px 20px; border-radius:12px; font-size:14px; font-weight:600;
+    opacity:0; transition:.3s; pointer-events:none; z-index:9; letter-spacing:-.01em;}
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .foot{text-align:center; color:#b0b8c1; font-size:11px; margin-top:14px; line-height:1.5;}
+</style>
+<script defer src="/_vercel/insights/script.js"></script>
+</head>
+<body>
+<div class="app">
+  <div class="card" id="card"></div>
+  <div class="foot">재미용 자가진단 · 또래 백분위는 정식 버전에서</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SECTORS = {
+  write:  {e:"✍️", n:"글쓰기·콘텐츠", ceiling:"고수는 AI를 '초안기'가 아니라 '편집 파트너'로 굴립니다. 톤·구조·페르소나를 지정해 5개 버전을 뽑고, 자기 목소리로 재조립하죠."},
+  code:   {e:"💻", n:"코딩·개발",     ceiling:"고수는 코드 받아쓰기를 넘어 아키텍처 토론·디버깅·리팩터링·테스트까지 떠넘기고, 에러가 나면 '근거를 들어' AI를 추궁합니다."},
+  research:{e:"🔍", n:"분석·리서치",   ceiling:"고수는 '출처 대, 반대 근거도 가져와'까지 시킵니다. AI를 비서가 아니라 토론 상대로 씁니다."},
+  plan:   {e:"🧩", n:"기획·전략",     ceiling:"고수는 AI에게 '악마의 변호인' 역할을 주고 자기 아이디어를 일부러 두들겨 맞습니다. 발산과 수렴을 반복하죠."},
+  work:   {e:"⚙️", n:"업무·생산성",   ceiling:"고수는 반복 업무를 한 번 시키고 끝내지 않습니다. 템플릿·자동화·커스텀 스킬로 '시스템'을 만들어 둡니다."},
+  learn:  {e:"📚", n:"학습·자기계발", ceiling:"고수는 '나 가르치지 말고 질문해줘'라고 합니다. 소크라테스식 대화로 AI를 개인 과외쌤으로 만들죠."},
+};
+
+const Q = [
+  {q:"새 작업을 AI한테 시킬 때, 첫 마디는?", o:[
+    {e:"🏃", t:"일단 한 줄 던지고 본다", lvl:2, a:-2},
+    {e:"💬", t:"원하는 걸 한두 문장 설명한다", lvl:5, a:0},
+    {e:"🏗️", t:"역할·맥락·제약·예시까지 빌드업", lvl:10, a:2},
+  ]},
+  {q:"답이 영 마음에 안 들면?", o:[
+    {e:"🙅", t:"에이 됐어, 내가 한다", lvl:2, a:-1},
+    {e:"🔁", t:"질문 살짝 바꿔서 다시", lvl:5, a:0},
+    {e:"🎯", t:"뭐가 틀렸는지 짚어주고 다시 굴린다", lvl:10, a:2},
+  ]},
+  {q:"AI가 답을 내놓으면?", o:[
+    {e:"🫡", t:"오 땡큐, 바로 갖다 쓴다", lvl:2, g:-2},
+    {e:"👀", t:"훑고 좀 고쳐서 쓴다", lvl:5, g:0},
+    {e:"🛡️", t:"'출처 대, 확실해?' 교차검증한다", lvl:10, g:3},
+  ]},
+  {q:"\"너는 ○○ 전문가야\" 역할 부여, 하시나요?", o:[
+    {e:"❓", t:"그게 뭔데요", lvl:2, a:-1},
+    {e:"🤏", t:"가끔 생각나면", lvl:5, a:0},
+    {e:"🎭", t:"거의 항상, 상황 맞춰서", lvl:10, a:2},
+  ]},
+  {q:"예시 던져주기(few-shot), 출력형식 지정(표·단계·JSON)은?", o:[
+    {e:"🤷", t:"그런 거 안 해요", lvl:2, a:-1},
+    {e:"📐", t:"형식 정도는 가끔", lvl:5, a:0},
+    {e:"🧪", t:"예시+형식 꼬박꼬박 챙김", lvl:10, a:2},
+  ]},
+  {q:"어려운 문제엔 \"단계별로 생각해줘\" 쓰세요?", o:[
+    {e:"🌀", t:"그런 것도 있어요?", lvl:2},
+    {e:"🪜", t:"가끔", lvl:5},
+    {e:"🧠", t:"일부러 머리 굴리게 시킨다", lvl:10, a:1},
+  ]},
+  {q:"AI 쓰는 '영역', 얼마나 넓어요?", o:[
+    {e:"🎯", t:"정해진 한두 가지에 집중", lvl:3, b:-2},
+    {e:"🍀", t:"서너 가지쯤", lvl:6, b:0},
+    {e:"🌈", t:"글·코드·분석·기획… 가리지 않음", lvl:10, b:2},
+  ]},
+  {q:"커스텀 지시·프로젝트·메모리, 여러 모델·도구 골라 쓰나요?", o:[
+    {e:"1️⃣", t:"쓰던 거 하나만", lvl:2, b:-1},
+    {e:"✌️", t:"두어 개", lvl:5, b:0},
+    {e:"🧰", t:"용도별로 골라 쓴다", lvl:10, b:1},
+  ]},
+  {q:"반복 업무를 템플릿·자동화·스킬로 만들어 봤어요?", o:[
+    {e:"🚫", t:"아니요", lvl:2, a:-1},
+    {e:"💡", t:"생각은 해봤다", lvl:5, a:0},
+    {e:"🤖", t:"실제로 시스템 만들었다", lvl:10, a:2},
+  ]},
+  {q:"AI랑 일하는 느낌, 어디에 가까워요?", o:[
+    {e:"🔎", t:"검색엔진", lvl:2, a:-1},
+    {e:"🔧", t:"편리한 도구", lvl:5, a:0},
+    {e:"🤝", t:"같이 머리 굴리는 파트너", lvl:10, a:2},
+  ]},
+];
+
+const TIERS = [
+  {min:0,  e:"🥚", n:"생밤티",        d:"프롬프트가… 좀 밤티해. 자랑? 일단 입틀막ㅋㅋ", flex:"나 AI 밤티래… 그래도 시작은 했다 🥚"},
+  {min:25, e:"🐣", n:"밤티 탈출각",   d:"오 미세하게 나아짐. 가능성은 ㅇㅈ. 근데 아직 자랑하면 밤티.", flex:"AI 좀 만져봤다. 밤티 탈출각 보는 중 🐣"},
+  {min:42, e:"🛠️", n:"폼 잡기 시작",  d:"어 좀 치는데? 폼 미쳐가는 중. 어깨 슬슬 올라감.", flex:"AI? 나 좀 폼 미쳤는데 ㅋㅋ 🛠"},
+  {min:58, e:"🧙", n:"꺼드럭 입문",   d:"묻지도 않은 거 알려주고 싶어짐. 클래스 ㅇㅈ.", flex:"묻지도 않았는데 알려주고 싶음. 클래스 ㅇㅈ 🧙"},
+  {min:74, e:"🔮", n:"폼 미친 꺼드럭", d:"야르 직전. 주변이 너한테 물어봄. 자랑해도 안 밉상.", flex:"남들 3번 시킬 거 나는 한 방. 야르 직전 🔮"},
+  {min:88, e:"👑", n:"야르 그 자체",  d:"야르!!! 이젠 AI가 너를 인용함. 꺼드럭 최종진화.", flex:"AI가 나한테 배워감. 야르!!! 👑"},
+];
+
+function archetype(a,b,g){
+  const crafter=a>=0, explorer=b>=0;
+  let type;
+  if(crafter&&!explorer) type={e:"🔬", n:"정밀 연금술사", d:"프롬프트 한 줄 한 줄이 실험. '대충'이란 단어를 모르는 타입."};
+  else if(crafter&&explorer) type={e:"🏛️", n:"만능 설계가", d:"뭘 시켜도 설계도부터 그리는 타입. 분야는 안 가립니다."};
+  else if(!crafter&&!explorer) type={e:"🎯", n:"직감 스나이퍼", d:"고민 0.5초, 한 방에 핵심. 좁고 빠르게 파는 타입."};
+  else type={e:"🎨", n:"자유로운 탐험가", d:"오늘은 코딩 내일은 시. 일단 다 찔러보는 타입."};
+  const badge = g>=1 ? {e:"🛡️", n:"검증형", d:"AI 말 곧이곧대로 안 믿음"} : {e:"🎲", n:"직감형", d:"느낌적인 느낌으로 간다"};
+  return {type, badge};
+}
+
+let state={step:-1, sector:null, lvl:0, a:0, b:0, g:0, answers:[]};
+const card=document.getElementById('card');
+function toast(msg){const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),2200);}
+
+function renderIntro(){
+  card.className="card reveal";
+  card.innerHTML=`
+    <div class="center" style="font-size:60px;margin-bottom:6px">🤖</div>
+    <h1 class="center">나 AI 꺼드럭 등급, 몇?</h1>
+    <p class="sub center" style="margin:0 0 26px">10개 질문이면 끝.<br>🥚 생밤티부터 👑 야르 그 자체까지,<br>당신의 꺼드럭 등급을 매겨드려요.</p>
+    <button class="btn" onclick="start()">등급 측정 ㄱㄱ</button>
+    <p class="sub center" style="font-size:12px;margin:14px 0 0;color:#b0b8c1">1분 소요 · 계산은 이 화면 안에서만</p>`;
+}
+function start(){ state={step:0,sector:null,lvl:0,a:0,b:0,g:0,answers:[]}; renderSector(); }
+
+function topbar(idx){
+  const pct = idx<0 ? 4 : 8+(idx/Q.length)*92;
+  const label = idx<0 ? "시작" : `${idx+1} / ${Q.length}`;
+  return `<div class="topbar"><div class="progress"><span style="width:${pct}%"></span></div><div class="pcount">${label}</div></div>`;
+}
+function renderSector(){
+  card.className="card reveal";
+  const cells=Object.entries(SECTORS).map(([k,v])=>
+    `<div class="sector" onclick="pickSector('${k}')"><div class="se">${v.e}</div><div class="sn">${v.n}</div></div>`).join('');
+  card.innerHTML=`${topbar(-1)}<div class="q">AI, 주로 어디에 쓰세요?</div><div class="sgrid">${cells}</div>`;
+}
+function pickSector(k){ state.sector=k; state.step=0; renderQ(); }
+
+function renderQ(){
+  const i=state.step, item=Q[i];
+  card.className="card reveal";
+  const opts=item.o.map((o,idx)=>
+    `<div class="opt" onclick="answer(${idx})"><span class="emo">${o.e}</span><span>${o.t}</span></div>`).join('');
+  card.innerHTML=`${topbar(i)}<div class="q">${item.q}</div>${opts}
+    ${i>0?'<button class="btn sec" onclick="back()">← 이전</button>':''}`;
+}
+function answer(idx){
+  const o=Q[state.step].o[idx];
+  state.lvl+=o.lvl; state.a+=(o.a||0); state.b+=(o.b||0); state.g+=(o.g||0);
+  state.answers[state.step]=idx; state.step++;
+  if(state.step>=Q.length) renderResult(); else renderQ();
+}
+function back(){ state.step--; const o=Q[state.step].o[state.answers[state.step]];
+  state.lvl-=o.lvl; state.a-=(o.a||0); state.b-=(o.b||0); state.g-=(o.g||0); renderQ(); }
+
+function tipsFor(score,s){
+  const pool=[];
+  if(s.a<3) pool.push(["🎭","프롬프트 첫 줄에 <b>역할</b>을 박고 <b>제약·예시</b>를 더해보세요. 길이보다 구조예요."]);
+  if(s.g<1) pool.push(["🛡️","답을 믿기 전에 <b>'출처 대, 확실해?'</b> 한 번. 이게 고수와 호구를 가릅니다."]);
+  if(s.b<0) pool.push(["🌈","안 쓰던 <b>새 분야</b>에 한 번 던져보세요. 활용 폭이 곧 레벨이에요."]);
+  const generic=[
+    ["🤖","반복하는 일은 <b>템플릿·자동화</b>로 박아두면 다음부턴 손가락만 까딱."],
+    ["🪜","어려운 문제엔 <b>'단계별로 생각해줘'</b>. AI 머리를 굴리게 만드세요."],
+    ["🔁","한 방에 안 되면 <b>고쳐가며 대화</b>. 정제 횟수가 결과를 만듭니다."],
+    ["📐","원하는 <b>출력형식(표·단계·JSON)</b>을 콕 집어주면 바로 쓸 답이 나와요."],
+  ];
+  if(score>=88){ pool.length=0;
+    pool.push(["👑","이미 신의 영역. 이제 당신의 <b>워크플로우를 남에게 전수</b>할 때입니다."]); }
+  for(const g of generic){ if(pool.length>=3) break;
+    if(!pool.some(p=>p[0]===g[0])) pool.push(g); }
+  return pool.slice(0,3).map(x=>`<div class="tip"><span class="ti">${x[0]}</span><span>${x[1]}</span></div>`).join('');
+}
+
+let LAST=null;
+function renderResult(){
+  const maxLvl=Q.reduce((s,q)=>s+Math.max(...q.o.map(o=>o.lvl)),0);
+  const score=Math.round(state.lvl/maxLvl*100);
+  let tIdx=0; TIERS.forEach((t,i)=>{ if(score>=t.min) tIdx=i; });
+  const tier=TIERS[tIdx];
+  const {type,badge}=archetype(state.a,state.b,state.g);
+  const sec=SECTORS[state.sector];
+  LAST={score,tier,type,badge};
+  const C=2*Math.PI*64, off=C*(1-score/100);
+  const rungs=TIERS.map((_,i)=>`<div class="rung ${i<=tIdx?'on':''}"></div>`).join('');
+  card.className="card reveal";
+  card.innerHTML=`
+    <div class="secTag">${sec.e} ${sec.n} 사용자</div>
+    <div class="ring">
+      <svg width="140" height="140">
+        <circle cx="70" cy="70" r="64" fill="none" stroke="#eef1f4" stroke-width="11"/>
+        <circle cx="70" cy="70" r="64" fill="none" stroke="#3182f6" stroke-width="11"
+          stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/>
+      </svg>
+      <div class="ctr"><div class="num">${score}</div><div class="of">/ 100</div></div>
+    </div>
+    <div class="tier">${tier.e} ${tier.n}</div>
+    <div class="tierd">${tier.d}</div>
+    <div class="ladder">${rungs}</div>
+    <div class="flexline">“${tier.flex}”</div>
+    <div class="chips">
+      <span class="chip">${type.e} ${type.n}</span>
+      <span class="chip">${badge.e} ${badge.n}</span>
+    </div>
+    <div class="sec-box"><h3>${type.e} ${type.n} — ${badge.n}</h3><p>${type.d} ${badge.d}.</p></div>
+    <div class="sec-box"><h3>🏔️ 이 분야 고수는 어디까지 쓰나</h3><p>${sec.ceiling}</p></div>
+    <div class="sec-box"><h3>🎯 다음 레벨로 가는 힌트</h3>${tipsFor(score,state)}</div>
+    <div class="btnrow">
+      <button class="btn" onclick="share()">결과 공유하기</button>
+      <button class="btn sec" style="flex:0 0 38%" onclick="renderIntro()">다시 하기</button>
+    </div>`;
+}
+
+async function share(){
+  if(!LAST) return;
+  const {score,tier,type}=LAST;
+  const text=`${tier.flex}\n(AI 꺼드럭 등급 ${tier.n} · ${score}점 · ${type.n})\n나도 등급 재보기 👇`;
+  const url=location.href;
+  try{
+    if(navigator.share){ await navigator.share({title:"AI 꺼드럭 등급 테스트", text, url}); }
+    else { await navigator.clipboard.writeText(text+"\n"+url); toast("꺼드럭 멘트 복사됐어요! 어디든 붙여넣기 📋"); }
+  }catch(e){ /* 사용자가 취소 */ }
+}
+
+renderIntro();
+</script>
+</body>
+</html>
