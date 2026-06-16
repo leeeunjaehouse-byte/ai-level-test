@@ -172,8 +172,7 @@ function renderIntro(){
   card.className="card reveal";
   card.innerHTML=`
     <div class="center"><span class="kicker">Anthropic AI Fluency · 4D</span></div>
-    <div class="center" style="font-size:54px;margin-bottom:8px">🧭</div>
-    <h1 class="center">AI 활용 역량 진단</h1>
+    <h1 class="center" style="margin-top:4px">AI 활용 역량 진단</h1>
     <p class="sub center" style="margin:0 0 24px">잘 쓰는 것 같긴 한데, 정확히 어디가 강하고 약한지.<br>
     앤트로픽 4D 프레임워크(위임·서술·분별·책임)로 짚어드립니다.</p>
     <button class="btn" onclick="start()">진단 시작</button>
@@ -188,7 +187,7 @@ function topbar(idx){
 }
 function renderSector(){
   card.className="card reveal";
-  const cells=Object.entries(SECTORS).map(([k,v])=>`<div class="sector" onclick="pickSector('${k}')"><div class="se">${v.e}</div><div class="sn">${v.n}</div></div>`).join('');
+  const cells=Object.entries(SECTORS).map(([k,v])=>`<div class="sector" onclick="pickSector('${k}')"><div class="sn">${v.n}</div></div>`).join('');
   card.innerHTML=`${topbar(-1)}<div class="q">AI를 주로 어디에 쓰세요?</div><div class="sgrid">${cells}</div>`;
 }
 function pickSector(k){ state.sector=k; state.step=0; renderStep(); }
@@ -197,14 +196,14 @@ function renderStep(){
   const i=state.step;
   if(i<Q.length){
     const item=Q[i], dim=DIMS[item.d];
-    const opts=item.o.map((o,idx)=>`<div class="opt" onclick="answer(${idx})"><span class="emo">${o.e}</span><span>${o.t}</span></div>`).join('');
+    const opts=item.o.map((o,idx)=>`<div class="opt" onclick="answer(${idx})"><span>${o.t}</span></div>`).join('');
     card.className="card reveal";
-    card.innerHTML=`${topbar(i)}<div class="dimtag">${dim.e} ${dim.n}</div><div class="q">${item.q}</div>${opts}
+    card.innerHTML=`${topbar(i)}<div class="dimtag">${dim.n}</div><div class="q">${item.q}</div>${opts}
       ${i>0?'<button class="btn sec" onclick="back()">← 이전</button>':''}`;
   } else {
-    const opts=MODEQ.o.map((o,idx)=>`<div class="opt" onclick="answerMode(${idx})"><span class="emo">${o.e}</span><span>${o.t}</span></div>`).join('');
+    const opts=MODEQ.o.map((o,idx)=>`<div class="opt" onclick="answerMode(${idx})"><span>${o.t}</span></div>`).join('');
     card.className="card reveal";
-    card.innerHTML=`${topbar(i)}<div class="dimtag">🧩 작업 모드</div><div class="q">${MODEQ.q}</div>${opts}
+    card.innerHTML=`${topbar(i)}<div class="dimtag">작업 모드</div><div class="q">${MODEQ.q}</div>${opts}
       <button class="btn sec" onclick="back()">← 이전</button>`;
   }
 }
@@ -256,22 +255,22 @@ function renderResult(){
   [0.25,0.5,0.75,1].forEach(g=>{const gp=order.map((d,i)=>{const ang=-Math.PI/2+i*(Math.PI/2);return `${(cx+R*g*Math.cos(ang)).toFixed(0)},${(cy+R*g*Math.sin(ang)).toFixed(0)}`;}).join(" "); grid+=`<polygon points="${gp}" fill="none" stroke="#e7e1ee"/>`;});
   let labels="";
   order.forEach((d,i)=>{const ang=-Math.PI/2+i*(Math.PI/2); const lx=cx+(R+20)*Math.cos(ang), ly=cy+(R+20)*Math.sin(ang); labels+=`<text x="${lx.toFixed(0)}" y="${(ly+4).toFixed(0)}" fill="#8a8792" font-size="12" font-weight="700" text-anchor="middle">${DIMS[d].short} ${sc[d]}</text>`;});
-  const bars=order.map(d=>`<div class="drow"><span>${DIMS[d].e} <b>${DIMS[d].n}</b></span><span>${sc[d]}/100</span></div><div class="bar"><span style="width:${sc[d]}%"></span></div>`).join("");
+  const bars=order.map(d=>`<div class="drow"><span><b>${DIMS[d].n}</b></span><span>${sc[d]}/100</span></div><div class="bar"><span style="width:${sc[d]}%"></span></div>`).join("");
   card.className="card reveal";
   card.innerHTML=`
-    <div class="secTag">${sec.e} ${sec.n} · 종합 AI 활용 역량</div>
+    <div class="secTag">${sec.n} · 종합 AI 활용 역량</div>
     <div class="ring"><svg width="140" height="140">
       <circle cx="70" cy="70" r="64" fill="none" stroke="#ece6f2" stroke-width="11"/>
       <circle cx="70" cy="70" r="64" fill="none" stroke="#6750a4" stroke-width="11" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}"/>
     </svg><div class="ctr"><div class="num">${overall}</div><div class="of">/ 100</div></div></div>
-    <div class="tier">${tier.e} ${tier.n}</div>
+    <div class="tier">${tier.n}</div>
     <div class="tierd">${tier.d}</div>
     <svg class="radar" width="260" height="240" viewBox="0 0 260 240">${grid}<polygon points="${poly}" fill="rgba(103,80,164,.18)" stroke="#6750a4" stroke-width="2"/>${labels}</svg>
     ${bars}
-    <div class="modebox"><div class="mn">${mode.e} ${mode.n}</div><div class="md">${mode.d}</div></div>
-    <div class="box"><h3>💪 가장 강한 역량 — ${DIMS[topD].n}</h3><p>${DIMS[topD].desc}. 여기선 이미 안정적이에요.</p></div>
-    <div class="box"><h3>🎯 다음 레벨 포인트 — ${DIMS[lowD].n}</h3><p>${tip(lowD)}</p></div>
-    <div class="box"><h3>🏔️ 이 분야 능숙한 사용자는</h3><p>${sec.ceiling}</p></div>
+    <div class="modebox"><div class="mn">${mode.n}</div><div class="md">${mode.d}</div></div>
+    <div class="box"><h3>가장 강한 역량 — ${DIMS[topD].n}</h3><p>${DIMS[topD].desc}. 여기선 이미 안정적이에요.</p></div>
+    <div class="box"><h3>다음 레벨 포인트 — ${DIMS[lowD].n}</h3><p>${tip(lowD)}</p></div>
+    <div class="box"><h3>이 분야 능숙한 사용자는</h3><p>${sec.ceiling}</p></div>
     <div class="btnrow">
       <button class="btn" onclick="share()">결과 공유하기</button>
       <button class="btn sec" style="flex:0 0 36%" onclick="renderIntro()">다시 하기</button>
@@ -281,11 +280,11 @@ function renderResult(){
 async function share(){
   if(!LAST) return;
   const {overall,tier,topD}=LAST;
-  const text=`나의 AI 활용 역량: ${tier.n} (${overall}점) · 강점은 ${DIMS[topD].short}.\n앤트로픽 4D 프레임워크 기반 자가진단 👇`;
+  const text=`나의 AI 활용 역량: ${tier.n} (${overall}점) · 강점은 ${DIMS[topD].short}.\n앤트로픽 4D 프레임워크 기반 자가진단`;
   const url=location.href;
   try{
     if(navigator.share){ await navigator.share({title:"AI 활용 역량 진단", text, url}); }
-    else { await navigator.clipboard.writeText(text+"\n"+url); toast("결과가 복사됐어요 📋"); }
+    else { await navigator.clipboard.writeText(text+"\n"+url); toast("결과가 복사됐어요"); }
   }catch(e){}
 }
 
