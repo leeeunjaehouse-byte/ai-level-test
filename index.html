@@ -49,13 +49,18 @@
     transition:border-color .14s, background .14s, transform .08s, box-shadow .14s;}
   .opt:hover{border-color:#c9b8ec; background:var(--line2);}
   .opt:active{transform:scale(.985); background:var(--pc); border-color:var(--primary);}
-  .opt .emo{font-size:21px; flex-shrink:0; width:26px; text-align:center;}
+  .obadge{flex-shrink:0; width:26px; height:26px; border-radius:50%; border:1px solid var(--line);
+    display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:var(--sub2); background:var(--card); transition:.14s;}
+  .opt:hover .obadge{border-color:#c9b8ec; color:var(--primary);}
+  .opt:active .obadge{background:var(--primary); color:#fff; border-color:var(--primary);}
+  .brandmark{display:flex; justify-content:center; margin-bottom:14px; color:var(--primary);}
   .sgrid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
   .sector{background:var(--line2); border:1px solid transparent; border-radius:20px; padding:20px 8px;
     text-align:center; cursor:pointer; transition:border-color .14s, transform .08s, background .14s;}
   .sector:hover{background:#ece4f8;}
   .sector:active{transform:scale(.96); border-color:var(--primary); background:var(--pc);}
-  .sector .se{font-size:27px;} .sector .sn{font-size:13px; font-weight:700; margin-top:8px; letter-spacing:-.02em; color:var(--sub2);}
+  .sector .se{display:flex; justify-content:center; color:var(--primary);} .sector .se svg{width:26px; height:26px;}
+  .sector .sn{font-size:13px; font-weight:700; margin-top:10px; letter-spacing:-.02em; color:var(--sub2);}
   .reveal{animation:rise .5s cubic-bezier(.2,.8,.2,1);} @keyframes rise{from{opacity:0; transform:translateY(16px)}to{opacity:1; transform:none}}
   .secTag{font-size:12px; font-weight:700; color:var(--sub); text-align:center; margin-bottom:16px; letter-spacing:.02em;}
   .ring{position:relative; width:148px; height:148px; margin:0 auto 8px;}
@@ -163,6 +168,16 @@ const TIERS = [
   {min:95, e:"🏆", n:"AI 플루언트", d:"거의 완벽. 자유자재로 쓰는 극소수 영역입니다."},
 ];
 
+const SVG=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
+const ICONS={
+  write: SVG('<path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/>'),
+  code: SVG('<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>'),
+  research: SVG('<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'),
+  plan: SVG('<circle cx="12" cy="12" r="9"/><polygon points="15.5 8.5 10.5 10.5 8.5 15.5 13.5 13.5 15.5 8.5"/>'),
+  work: SVG('<rect x="5" y="4" width="14" height="17" rx="2"/><path d="M9 3.5h6V7H9z"/><path d="M8.5 13l2 2 4-4"/>'),
+  learn: SVG('<path d="M5 4h11a2 2 0 0 1 2 2v13H7a2 2 0 0 0-2 2V4z"/><path d="M5 19a2 2 0 0 1 2-2h11"/>'),
+};
+const BRAND=`<svg width="38" height="38" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><polygon points="20 5 35 20 20 35 5 20"/><polygon points="20 12 28 20 20 28 12 20"/><circle cx="20" cy="20" r="1.8" fill="currentColor" stroke="none"/></svg>`;
 let state={step:-1, sector:null, scores:{del:0,des:0,dis:0,dil:0}, mode:null, answers:[]};
 const card=document.getElementById('card');
 function toast(m){const t=document.getElementById('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(window._t); window._t=setTimeout(()=>t.classList.remove('show'),2200);}
@@ -171,6 +186,7 @@ const TOTAL = Q.length + 1; // +모드
 function renderIntro(){
   card.className="card reveal";
   card.innerHTML=`
+    <div class="brandmark">${BRAND}</div>
     <div class="center"><span class="kicker">Anthropic AI Fluency · 4D</span></div>
     <h1 class="center" style="margin-top:4px">AI 활용 역량 진단</h1>
     <p class="sub center" style="margin:0 0 24px">잘 쓰는 것 같긴 한데, 정확히 어디가 강하고 약한지.<br>
@@ -187,7 +203,7 @@ function topbar(idx){
 }
 function renderSector(){
   card.className="card reveal";
-  const cells=Object.entries(SECTORS).map(([k,v])=>`<div class="sector" onclick="pickSector('${k}')"><div class="sn">${v.n}</div></div>`).join('');
+  const cells=Object.entries(SECTORS).map(([k,v])=>`<div class="sector" onclick="pickSector('${k}')"><div class="se">${ICONS[k]||''}</div><div class="sn">${v.n}</div></div>`).join('');
   card.innerHTML=`${topbar(-1)}<div class="q">AI를 주로 어디에 쓰세요?</div><div class="sgrid">${cells}</div>`;
 }
 function pickSector(k){ state.sector=k; state.step=0; renderStep(); }
@@ -196,12 +212,12 @@ function renderStep(){
   const i=state.step;
   if(i<Q.length){
     const item=Q[i], dim=DIMS[item.d];
-    const opts=item.o.map((o,idx)=>`<div class="opt" onclick="answer(${idx})"><span>${o.t}</span></div>`).join('');
+    const opts=item.o.map((o,idx)=>`<div class="opt" onclick="answer(${idx})"><span class="obadge">${String.fromCharCode(65+idx)}</span><span>${o.t}</span></div>`).join('');
     card.className="card reveal";
     card.innerHTML=`${topbar(i)}<div class="dimtag">${dim.n}</div><div class="q">${item.q}</div>${opts}
       ${i>0?'<button class="btn sec" onclick="back()">← 이전</button>':''}`;
   } else {
-    const opts=MODEQ.o.map((o,idx)=>`<div class="opt" onclick="answerMode(${idx})"><span>${o.t}</span></div>`).join('');
+    const opts=MODEQ.o.map((o,idx)=>`<div class="opt" onclick="answerMode(${idx})"><span class="obadge">${String.fromCharCode(65+idx)}</span><span>${o.t}</span></div>`).join('');
     card.className="card reveal";
     card.innerHTML=`${topbar(i)}<div class="dimtag">작업 모드</div><div class="q">${MODEQ.q}</div>${opts}
       <button class="btn sec" onclick="back()">← 이전</button>`;
